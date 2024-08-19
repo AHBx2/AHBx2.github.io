@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Viewer</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #232323;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    #image-container {
+      margin-top: 20px;
+    }
+
+    #image-container img {
+      max-width: 100%;
+      height: auto;
+      border: 2px solid #fff;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="image-container">
+    <p id="loading-message">Loading image...</p>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Parse the URL path to get the ID parameter
+      const path = window.location.pathname;
+      const idMatch = path.match(/^\/id\/([^\/]+)$/);
+      const id = idMatch ? idMatch[1] : null;
+
+      if (!id) {
+        document.getElementById('image-container').innerHTML = '<p>No image ID provided.</p>';
+        return;
+      }
+
+      // Construct the API URL
+      const apiUrl = `https://api.gucios.com/api/image?id=${id}`;
+
+      // Fetch the image
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.blob();
+        })
+        .then(imageBlob => {
+          const imageUrl = URL.createObjectURL(imageBlob);
+          document.getElementById('image-container').innerHTML = `<img src="${imageUrl}" alt="Image ${id}" />`;
+        })
+        .catch(error => {
+          console.error('Error fetching image:', error);
+          document.getElementById('image-container').innerHTML = '<p>Error loading image.</p>';
+        });
+    });
+  </script>
+</body>
+</html>
